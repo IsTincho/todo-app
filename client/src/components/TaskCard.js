@@ -1,11 +1,28 @@
 import React from "react";
 import { FaTrashAlt, FaEdit, FaCheckCircle, FaRegCircle } from "react-icons/fa";
 
-const TaskCard = ({ task, onMarkAsCompleted, onDelete, onEdit }) => {
+const TaskCard = ({
+  task,
+  onMarkAsCompleted,
+  onDelete,
+  onEdit,
+  dragHandleProps,
+}) => {
   const { _id, name, description, dueDate, isCompleted } = task;
 
   return (
     <div className="bg-white rounded-2xl shadow-md p-5 flex flex-col justify-between hover:shadow-lg transition">
+      <div className="flex justify-between items-start">
+        <h2 className="text-lg font-semibold text-slate-800">{task.title}</h2>
+        <span
+          {...dragHandleProps}
+          className="cursor-grab text-slate-400 hover:text-slate-600 active:cursor-grabbing touch-none select-none"
+          title="Arrastrar"
+        >
+          ≡
+        </span>
+      </div>
+
       <div className="mb-4">
         <h2 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
           {isCompleted ? (

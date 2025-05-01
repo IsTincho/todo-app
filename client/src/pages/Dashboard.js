@@ -2,24 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import axios from "../api/axios";
 import { toast } from "react-toastify";
-import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import TaskCard from "../components/TaskCard";
 import CreateTaskModal from "../components/CreateTaskModal";
 import EditTaskModal from "../components/EditTaskModal";
 import ConfirmModal from "../components/ConfirmModal";
+import TaskList from "../components/TaskList";
 
 const Dashboard = () => {
   const [tasks, setTasks] = useState([]);
@@ -65,29 +51,20 @@ const Dashboard = () => {
       );
   };
 
-  const confirmDeleteTask = (id) => {
-    setTaskIdToDelete(id);
-    setShowConfirmModal(true);
-  };
-
   const handleConfirmDelete = () => {
     axios
       .delete(`/api/todos/${taskIdToDelete}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then(() => {
-        toast.success("🗑️ ¡Tarea eliminada con éxito!", {
-          position: "top-right",
-          autoClose: 3000,
-        });
+        toast.success("🗑️ ¡Tarea eliminada con éxito!");
         setTasks((prev) => prev.filter((task) => task._id !== taskIdToDelete));
       })
       .catch((err) =>
         toast.error(
           `❌ Error al eliminar tarea: ${
             err.response?.data?.msg || err.message
-          }`,
-          { position: "top-right", autoClose: 4000 }
+          }`
         )
       )
       .finally(() => {
@@ -96,65 +73,10 @@ const Dashboard = () => {
       });
   };
 
-  const handleEditTask = (task) => {
-    setTaskToEdit(task);
-    setShowModal(true);
-  };
-
   const handleTaskUpdated = (updatedTask) => {
     setTasks((prev) =>
       prev.map((task) => (task._id === updatedTask._id ? updatedTask : task))
     );
-  };
-
-  const SortableTaskCard = ({ task, onMarkAsCompleted, onDelete, onEdit }) => {
-    const { attributes, listeners, setNodeRef, transform, transition } =
-      useSortable({ id: task._id });
-
-    const style = {
-      transform: CSS.Transform.toString(transform),
-      transition,
-    };
-
-    return (
-      <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-        <TaskCard
-          task={task}
-          onMarkAsCompleted={onMarkAsCompleted}
-          onDelete={onDelete}
-          onEdit={onEdit}
-        />
-      </div>
-    );
-  };
-
-  const sensors = useSensors(useSensor(PointerSensor));
-
-  const handleDragEnd = async (event) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-
-    const oldIndex = tasks.findIndex((t) => t._id === active.id);
-    const newIndex = tasks.findIndex((t) => t._id === over.id);
-
-    const newTasks = arrayMove(tasks, oldIndex, newIndex);
-    setTasks(newTasks);
-
-    // Mandar al backend el nuevo orden
-    try {
-      const orderedIds = newTasks.map((t) => t._id);
-      await axios.put(
-        "/api/todos/reorder",
-        { tasksOrder: orderedIds },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      toast.success("Orden actualizado");
-    } catch (err) {
-      toast.error(
-        "Error al actualizar el orden: " +
-          (err.response?.data?.message || err.message)
-      );
-    }
   };
 
   return (
@@ -176,48 +98,33 @@ const Dashboard = () => {
         </button>
       </div>
 
-      {tasks.length === 0 ? (
-        <p className="text-xl text-gray-500 mt-10">
-          No tenés tareas todavía 💤
-        </p>
-      ) : (
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext
-            items={tasks.map((task) => task._id)}
-            strategy={verticalListSortingStrategy}
-          >
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl">
-              {tasks.map((task) => (
-                <SortableTaskCard
-                  key={task._id}
-                  task={task}
-                  onMarkAsCompleted={handleMarkAsCompleted}
-                  onDelete={confirmDeleteTask}
-                  onEdit={handleEditTask}
-                />
-              ))}
-            </div>
-          </SortableContext>
-        </DndContext>
-      )}
+      <TaskList
+        tasks={tasks}
+        setTasks={setTasks}
+        token={token}
+        onMarkAsCompleted={handleMarkAsCompleted}
+        onDelete={(id) => {
+          setTaskIdToDelete(id);
+          setShowConfirmModal(true);
+        }}
+        onEdit={(task) => {
+          setTaskToEdit(task);
+          setShowModal(true);
+        }}
+      />
+
+      <CreateTaskModal
+        isOpen={showModalCreate}
+        onClose={() => setShowModalCreate(false)}
+        onTaskCreated={(newTask) => setTasks((prev) => [...prev, newTask])}
+        token={token}
+      />
 
       <EditTaskModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
         onTaskUpdated={handleTaskUpdated}
         task={taskToEdit}
-        token={token}
-      />
-
-      <CreateTaskModal
-        isOpen={showModalCreate}
-        onClose={() => setShowModalCreate(false)}
-        onEdit={handleEditTask} //
-        onTaskCreated={(newTask) => setTasks((prev) => [...prev, newTask])}
         token={token}
       />
 
