@@ -1,4 +1,3 @@
-// src/redux/authActions.js
 import axios from "../api/axios";
 import { loginSuccess, logout } from "./authSlice";
 import Cookies from "js-cookie";

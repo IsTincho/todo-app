@@ -1,4 +1,3 @@
-// src/components/NavBar.jsx
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
@@ -11,7 +10,7 @@ const NavBar = () => {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
   const handleLogout = () => {
-    dispatch(logoutAndRedirect(navigate)); // Limpiamos el estado de autenticación
+    dispatch(logoutAndRedirect(navigate));
   };
 
   return (

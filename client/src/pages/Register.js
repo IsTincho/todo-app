@@ -1,4 +1,3 @@
-// src/pages/Register.jsx
 import { useState } from "react";
 import axios from "../api/axios";
 import { Link, useNavigate } from "react-router-dom";
@@ -48,7 +47,6 @@ export default function Register() {
           Registrarse
         </h2>
 
-        {/* First and Last Name Inputs in one row */}
         <div className="mb-4 flex space-x-4">
           <div className="w-1/2">
             <label
@@ -105,7 +103,6 @@ export default function Register() {
           />
         </div>
 
-        {/* Password and Confirm Password Inputs in the same row */}
         <div className="mb-4 flex space-x-4">
           {/* Password Input */}
           <div className="w-1/2 relative">

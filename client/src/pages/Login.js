@@ -1,17 +1,16 @@
-// src/pages/Login.jsx
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "../redux/authSlice";
 import axios from "../api/axios";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify"; // Importamos toastify
-import ShowPasswordButton from "../components/ShowPasswordButton"; // Importamos el componente de ShowPasswordButton
-import { Link } from "react-router-dom"; // Importamos Link para navegar entre rutas
+import { toast } from "react-toastify";
+import ShowPasswordButton from "../components/ShowPasswordButton";
+import { Link } from "react-router-dom";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // Para mostrar/ocultar la contraseña
+  const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -19,14 +18,15 @@ const Login = () => {
     e.preventDefault();
 
     axios
-      .post("/api/auth/login", { email, password }) // Aquí ya no es necesario poner la baseURL, ya se toma automáticamente de la configuración
+      .post("/api/auth/login", { email, password })
       .then((response) => {
         const { user, token } = response.data;
         dispatch(loginSuccess({ user, token }));
+        toast.success("Sesion iniciada correctamente!");
         navigate("/");
       })
       .catch((err) => {
-        toast.error("Error: " + (err.response?.data?.message || err.message)); // Mostramos el error con Toastify
+        toast.error("Error: " + (err.response?.data?.message || err.message));
       });
   };
 
@@ -66,15 +66,15 @@ const Login = () => {
             Password
           </label>
           <input
-            type={showPassword ? "text" : "password"} // Cambiar tipo de input
+            type={showPassword ? "text" : "password"}
             id="password"
-            className="mt-2 p-2 w-full border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10" // Ajustamos padding-right para que haya espacio para el icono
+            className="mt-2 p-2 w-full border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             placeholder="Enter your password"
           />
-          {/* Usamos el componente ShowPasswordButton */}
+          {/* ShowPasswordButton */}
           <ShowPasswordButton
             showPassword={showPassword}
             togglePassword={() => setShowPassword(!showPassword)}

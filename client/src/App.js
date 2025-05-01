@@ -1,26 +1,24 @@
-// src/App.js
 import React, { useEffect } from "react";
-import { Routes, Route, BrowserRouter, useNavigate } from "react-router-dom";
+import { Routes, Route, BrowserRouter } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import NavBar from "./components/NavBar";
 import { useDispatch } from "react-redux";
-import { checkAuth } from "./redux/authActions";
 import ProtectedLayout from "./layouts/ProtectedLayout";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { checkAuth } from "./redux/authActions";
 
-const AppRoutes = () => {
+const App = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   useEffect(() => {
-    dispatch(checkAuth(navigate));
-  }, [dispatch, navigate]);
+    dispatch(checkAuth());
+  }, [dispatch]);
 
   return (
-    <>
+    <BrowserRouter>
       <NavBar />
       <Routes>
         <Route path="/login" element={<Login />} />
@@ -30,14 +28,8 @@ const AppRoutes = () => {
         </Route>
       </Routes>
       <ToastContainer />
-    </>
+    </BrowserRouter>
   );
 };
-
-const App = () => (
-  <BrowserRouter>
-    <AppRoutes />
-  </BrowserRouter>
-);
 
 export default App;
