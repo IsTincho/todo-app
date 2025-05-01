@@ -35,33 +35,43 @@ Si deseas configurar la app en tu entorno local, sigue estos pasos después de c
 
 1. **Clona el repositorio**:
 
+   ```bash
    git clone <URL DEL REPOSITORIO>
+   ```
 
 2. **Instala las dependencias**:
 
    - En el directorio raíz del proyecto, corre:
 
+     ```bash
      npm install
+     ```
 
 3. **Configura el backend**:
 
    - Crea un archivo `.env` en la raíz del backend y agrega las siguientes variables de entorno:
 
+     ```bash
      MONGO_URI=<URL DE TU MONGO DB>
      JWT_SECRET=<TU SECRETO PARA JWT>
      PORT=5000
      API_CLIENT=<API CLIENT>
      API_SECRET=<API SECRET>
+     ```
 
 4. **Corre el servidor backend**:
 
    - Entra al directorio del backend:
 
+     ```bash
      cd backend
+     ```
 
    - Inicia el servidor:
 
+     ```bash
      npm run start
+     ```
 
    - Esto levantará el servidor en el puerto 5000 (por defecto).
 
@@ -69,20 +79,26 @@ Si deseas configurar la app en tu entorno local, sigue estos pasos después de c
 
    - Crea un archivo `.env` en la raíz del frontend y agrega las siguientes variables de entorno:
 
+     ```bash
      REACT_APP_API_URL=<direccion-del-deploy>
-     REACT_APP_API_URL_DEV= http://localhost:5000
+     REACT_APP_API_URL_DEV=http://localhost:5000
      REACT_APP_API_CLIENT=<API CLIENT>
      REACT_APP_API_SECRET=<API SECRET>
+     ```
 
 6. **Corre el frontend**:
 
    - Entra al directorio del frontend:
 
+     ```bash
      cd frontend
+     ```
 
    - Inicia la aplicación de React:
 
+     ```bash
      npm run start
+     ```
 
    Esto abrirá la aplicación en tu navegador local en `http://localhost:3000`.
 
