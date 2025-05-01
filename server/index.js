@@ -2,7 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const userRoutes = require("./routes/userRoutes");
+const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 
 dotenv.config();
@@ -27,7 +27,7 @@ mongoose
   });
 
 // Rutas
-app.use("/api/users", userRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes); // Usamos las rutas de admin
 
 app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));
