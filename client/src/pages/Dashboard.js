@@ -2,6 +2,20 @@ import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import axios from "../api/axios";
 import { toast } from "react-toastify";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import TaskCard from "../components/TaskCard";
 import CreateTaskModal from "../components/CreateTaskModal";
 import EditTaskModal from "../components/EditTaskModal";
@@ -93,6 +107,56 @@ const Dashboard = () => {
     );
   };
 
+  const SortableTaskCard = ({ task, onMarkAsCompleted, onDelete, onEdit }) => {
+    const { attributes, listeners, setNodeRef, transform, transition } =
+      useSortable({ id: task._id });
+
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+    };
+
+    return (
+      <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+        <TaskCard
+          task={task}
+          onMarkAsCompleted={onMarkAsCompleted}
+          onDelete={onDelete}
+          onEdit={onEdit}
+        />
+      </div>
+    );
+  };
+
+  const sensors = useSensors(useSensor(PointerSensor));
+
+  const handleDragEnd = async (event) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = tasks.findIndex((t) => t._id === active.id);
+    const newIndex = tasks.findIndex((t) => t._id === over.id);
+
+    const newTasks = arrayMove(tasks, oldIndex, newIndex);
+    setTasks(newTasks);
+
+    // Mandar al backend el nuevo orden
+    try {
+      const orderedIds = newTasks.map((t) => t._id);
+      await axios.put(
+        "/api/todos/reorder",
+        { tasksOrder: orderedIds },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success("Orden actualizado");
+    } catch (err) {
+      toast.error(
+        "Error al actualizar el orden: " +
+          (err.response?.data?.message || err.message)
+      );
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 py-10 px-6 flex flex-col items-center">
       <h1 className="text-4xl font-bold text-slate-800 mb-2">📋 ToDo App</h1>
@@ -117,17 +181,28 @@ const Dashboard = () => {
           No tenés tareas todavía 💤
         </p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl">
-          {tasks.map((task) => (
-            <TaskCard
-              key={task._id}
-              task={task}
-              onMarkAsCompleted={handleMarkAsCompleted}
-              onDelete={confirmDeleteTask}
-              onEdit={handleEditTask}
-            />
-          ))}
-        </div>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={tasks.map((task) => task._id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl">
+              {tasks.map((task) => (
+                <SortableTaskCard
+                  key={task._id}
+                  task={task}
+                  onMarkAsCompleted={handleMarkAsCompleted}
+                  onDelete={confirmDeleteTask}
+                  onEdit={handleEditTask}
+                />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
       )}
 
       <EditTaskModal

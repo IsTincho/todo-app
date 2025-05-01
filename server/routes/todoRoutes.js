@@ -2,7 +2,6 @@ const express = require("express");
 const {
   createTodo,
   getAllTodos,
-  updateTodoOrder,
   markTodoAsCompleted,
   editTodo,
   deleteTodo,
@@ -14,7 +13,6 @@ const router = express.Router();
 
 router.post("/create", authMiddleware, createTodo);
 router.get("/", authMiddleware, getAllTodos);
-router.put("/update-order", authMiddleware, updateTodoOrder);
 router.put("/:id/complete", authMiddleware, markTodoAsCompleted);
 router.put("/:id/edit", authMiddleware, editTodo);
 router.delete("/:id", authMiddleware, deleteTodo);

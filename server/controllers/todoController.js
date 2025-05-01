@@ -50,40 +50,6 @@ const createTodo = async (req, res) => {
   }
 };
 
-const updateTodoOrder = async (req, res) => {
-  const { todoId, newOrder } = req.body;
-
-  if (newOrder === undefined || newOrder === null) {
-    return res.status(400).json({ message: "El nuevo orden es requerido" });
-  }
-
-  try {
-    const todo = await Todo.findById(todoId);
-
-    if (!todo) {
-      return res.status(404).json({ message: "Tarea no encontrada" });
-    }
-
-    if (todo.user.toString() !== req.userId) {
-      return res
-        .status(403)
-        .json({ message: "No tienes permiso para actualizar esta tarea" });
-    }
-
-    todo.order = newOrder;
-    await todo.save();
-
-    res
-      .status(200)
-      .json({ message: "Orden de tarea actualizado exitosamente", todo });
-  } catch (err) {
-    console.error("Error al actualizar el orden de la tarea:", err.message);
-    res
-      .status(500)
-      .json({ message: "Error al actualizar el orden de la tarea" });
-  }
-};
-
 const markTodoAsCompleted = async (req, res) => {
   const { id } = req.params;
 
@@ -213,7 +179,6 @@ const reorderTodos = async (req, res) => {
 module.exports = {
   getAllTodos,
   createTodo,
-  updateTodoOrder,
   markTodoAsCompleted,
   editTodo,
   deleteTodo,
