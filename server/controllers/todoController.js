@@ -5,7 +5,7 @@ const getAllTodos = async (req, res) => {
     const todos = await Todo.find({
       user: req.user._id,
       isDeleted: false,
-    }).sort({ order: 1 });
+    }); //.sort({ order: 1 });
 
     res.status(200).json(todos);
   } catch (err) {
@@ -52,6 +52,7 @@ const createTodo = async (req, res) => {
 
 const markTodoAsCompleted = async (req, res) => {
   const { id } = req.params;
+  const { isCompleted } = req.body; // Ahora recibimos el estado deseado
 
   try {
     const todo = await Todo.findById(id);
@@ -66,13 +67,19 @@ const markTodoAsCompleted = async (req, res) => {
         .json({ message: "No tienes permiso para modificar esta tarea" });
     }
 
-    todo.isCompleted = true;
+    // Establecer el estado según el valor recibido
+    todo.isCompleted = isCompleted;
     await todo.save();
 
-    res.status(200).json({ message: "Tarea completada", todo });
+    res.status(200).json({
+      message: isCompleted
+        ? "Tarea completada"
+        : "Tarea marcada como pendiente",
+      todo,
+    });
   } catch (err) {
     res.status(500).json({
-      message: "Error al marcar tarea como completada",
+      message: `Error al ${isCompleted ? "completar" : "desmarcar"} tarea`,
       error: err.message,
     });
   }

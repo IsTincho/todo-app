@@ -1,120 +1,67 @@
-import React from "react";
-import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-  MouseSensor,
-} from "@dnd-kit/core";
-
-import {
-  arrayMove,
-  SortableContext,
-  verticalListSortingStrategy,
-  useSortable,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import TaskCard from "./TaskCard";
-import axios from "../api/axios";
-import { toast } from "react-toastify";
-
-const SortableTaskCard = ({ task, onMarkAsCompleted, onDelete, onEdit }) => {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: task._id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  return (
-    <div ref={setNodeRef} style={style}>
-      <TaskCard
-        task={task}
-        onMarkAsCompleted={() => onMarkAsCompleted(task._id)}
-        onDelete={() => onDelete(task._id)}
-        onEdit={() => onEdit(task)}
-        dragHandleProps={{ ...attributes, ...listeners }}
-      />
-    </div>
-  );
-};
+import { useState } from "react";
+import GridView from "./GridView";
+import ListView from "./ListView";
+import { Grid, List } from "lucide-react";
 
 const TaskList = ({
   tasks,
   setTasks,
   token,
-  onMarkAsCompleted,
+  onToggleComplete,
   onDelete,
   onEdit,
 }) => {
-  const sensors = useSensors(
-    useSensor(MouseSensor),
-    useSensor(TouchSensor, {
-      touchOnly: true,
-      activationConstraint: {
-        delay: 0,
-        tolerance: 5,
-      },
-    })
-  );
-
-  const handleDragEnd = async (event) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-
-    const oldIndex = tasks.findIndex((t) => t._id === active.id);
-    const newIndex = tasks.findIndex((t) => t._id === over.id);
-    const newTasks = arrayMove(tasks, oldIndex, newIndex);
-    setTasks(newTasks);
-
-    try {
-      const orderedIds = newTasks.map((t) => t._id);
-      await axios.put(
-        "/api/todos/reorder",
-        { tasksOrder: orderedIds },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      toast.success("Orden actualizado");
-    } catch (err) {
-      toast.error(
-        "Error al actualizar el orden: " +
-          (err.response?.data?.message || err.message)
-      );
-    }
-  };
-
-  if (tasks.length === 0) {
-    return (
-      <p className="text-xl text-gray-500 mt-10">No tenés tareas todavía 💤</p>
-    );
-  }
+  const [viewMode, setViewMode] = useState("grid"); // "grid" o "list" el estado
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragEnd={handleDragEnd}
-    >
-      <SortableContext
-        items={tasks.map((task) => task._id)}
-        strategy={verticalListSortingStrategy}
-      >
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl">
-          {tasks.map((task) => (
-            <SortableTaskCard
-              key={task._id}
-              task={task}
-              onMarkAsCompleted={onMarkAsCompleted}
-              onDelete={onDelete}
-              onEdit={onEdit}
-            />
-          ))}
+    <div className="w-full">
+      <div className="flex justify-end mb-4">
+        <div className="bg-white rounded-lg shadow-sm border border-slate-100 p-1 inline-flex">
+          <button
+            onClick={() => setViewMode("grid")}
+            className={`p-2 rounded-md transition-all ${
+              viewMode === "grid"
+                ? "bg-rose-50 text-rose-500"
+                : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+            }`}
+            title="Vista de cuadrícula"
+          >
+            <Grid className="w-5 h-5" />
+          </button>
+          <button
+            onClick={() => setViewMode("list")}
+            className={`p-2 rounded-md transition-all ${
+              viewMode === "list"
+                ? "bg-rose-50 text-rose-500"
+                : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+            }`}
+            title="Vista de lista"
+          >
+            <List className="w-5 h-5" />
+          </button>
         </div>
-      </SortableContext>
-    </DndContext>
+      </div>
+
+      {viewMode === "grid" ? (
+        <GridView
+          tasks={tasks}
+          setTasks={setTasks}
+          token={token}
+          onToggleComplete={onToggleComplete}
+          onDelete={onDelete}
+          onEdit={onEdit}
+        />
+      ) : (
+        <ListView
+          tasks={tasks}
+          setTasks={setTasks}
+          token={token}
+          onToggleComplete={onToggleComplete}
+          onDelete={onDelete}
+          onEdit={onEdit}
+        />
+      )}
+    </div>
   );
 };
 

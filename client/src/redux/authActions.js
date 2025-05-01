@@ -2,13 +2,12 @@ import axios from "../api/axios";
 import { loginSuccess, logout } from "./authSlice";
 import Cookies from "js-cookie";
 
-export const checkAuth = (navigate) => async (dispatch) => {
+export const checkAuth = () => async (dispatch) => {
   const token = Cookies.get("token");
 
   if (!token) {
     dispatch(logout());
-    navigate("/login");
-    return;
+    return { redirect: true };
   }
 
   try {
@@ -17,10 +16,11 @@ export const checkAuth = (navigate) => async (dispatch) => {
     });
 
     dispatch(loginSuccess({ user: res.data.user || null, token }));
+    return { redirect: false };
   } catch (err) {
     console.warn("Token inválido, cerrando sesión...");
     dispatch(logout());
-    navigate("/login");
+    return { redirect: true };
   }
 };
 
