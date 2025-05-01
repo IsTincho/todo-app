@@ -17,20 +17,13 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
       state.user = user;
       state.token = token;
-      Cookies.set("token", token, { expires: 7 }); // cookie por 7 días
+      Cookies.set("token", token, { expires: 1 / 24 }); // 1 hora
     },
     logout: (state) => {
       state.isAuthenticated = false;
       state.user = null;
       state.token = null;
       Cookies.remove("token");
-    },
-    checkAuth: (state) => {
-      const token = Cookies.get("token");
-      if (token) {
-        state.token = token;
-        state.isAuthenticated = true;
-      }
     },
   },
 });

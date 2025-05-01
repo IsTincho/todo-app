@@ -4,12 +4,16 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const verifyApiCredentials = require("./middlewares/verifyApiCredentials");
+const apiLimiter = require("./middlewares/rateLimiter");
 
 dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(apiLimiter);
+app.use(verifyApiCredentials);
 
 const PORT = process.env.PORT || 5000;
 

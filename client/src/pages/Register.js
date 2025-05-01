@@ -1,6 +1,6 @@
 // src/pages/Register.jsx
 import { useState } from "react";
-import axios from "../axios";
+import axios from "../api/axios";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import ShowPasswordButton from "../components/ShowPasswordButton";

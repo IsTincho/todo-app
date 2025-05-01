@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "../redux/authSlice";
-import axios from "../axios";
+import axios from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify"; // Importamos toastify
 import ShowPasswordButton from "../components/ShowPasswordButton"; // Importamos el componente de ShowPasswordButton
