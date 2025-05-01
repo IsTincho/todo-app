@@ -1,11 +1,10 @@
-// models/Todo.js
 const mongoose = require("mongoose");
 
 const todoSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // Referencia al modelo User
+      ref: "User",
       required: true,
     },
     name: {
@@ -15,6 +14,7 @@ const todoSchema = new mongoose.Schema(
     description: String,
     dueDate: Date,
     order: Number,
+    isDeleted: { type: Boolean, default: false },
     completed: {
       type: Boolean,
       default: false,

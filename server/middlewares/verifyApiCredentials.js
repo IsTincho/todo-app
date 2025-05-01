@@ -6,7 +6,7 @@ const verifyApiCredentials = (req, res, next) => {
     return res.status(403).json({ message: "Credenciales de API inválidas" });
   }
 
-  next(); // todo bien, sigue con la ruta
+  next();
 };
 
 module.exports = verifyApiCredentials;

@@ -1,7 +1,6 @@
-// controllers/adminController.js
 const User = require("../models/User");
 
-// Contar usuarios
+// Contar usuarios (Es un TEST)
 const getUserCount = async (req, res) => {
   try {
     const count = await User.countDocuments();

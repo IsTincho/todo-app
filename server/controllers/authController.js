@@ -1,4 +1,3 @@
-// controllers/authController.js
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
@@ -12,7 +11,6 @@ const registerUser = async (req, res) => {
   }
 
   try {
-    // Verificar si el usuario ya existe
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: "El usuario ya existe" });
@@ -21,7 +19,7 @@ const registerUser = async (req, res) => {
     // Hash de la contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Crear el nuevo usuario
+    // Crear el nuevo usuario con la info del form
     const newUser = new User({
       firstName,
       lastName,
@@ -29,10 +27,9 @@ const registerUser = async (req, res) => {
       password: hashedPassword,
     });
 
-    // Guardar el usuario en la base de datos
     await newUser.save();
 
-    // Crear un token JWT
+    // Creacion del token con la firma del scret y el expires
     const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
@@ -65,11 +62,10 @@ const loginUser = async (req, res) => {
       return res.status(400).json({ message: "Contraseña incorrecta" });
     }
 
-    // Actualizar el último login
     user.lastLogin = new Date();
     await user.save();
 
-    // Crear token JWT
+    //Creacion del token con la firma del scret y el expires
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
