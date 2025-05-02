@@ -6,7 +6,15 @@ import CreateTaskModal from "../components/CreateTaskModal";
 import EditTaskModal from "../components/EditTaskModal";
 import ConfirmModal from "../components/ConfirmModal";
 import TaskList from "../components/TaskList";
-import { PlusCircle, EyeOff, Eye } from "lucide-react";
+import {
+  PlusCircle,
+  EyeOff,
+  Eye,
+  CheckSquare,
+  Clock,
+  CheckCircle,
+} from "lucide-react";
+import TaskDetailModal from "../components/TaskDetailModal";
 
 const Dashboard = () => {
   const [tasks, setTasks] = useState([]);
@@ -21,6 +29,13 @@ const Dashboard = () => {
   const [taskToEdit, setTaskToEdit] = useState(null);
   const [showCompletedTasks, setShowCompletedTasks] = useState(true);
   const { token } = useSelector((state) => state.auth);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+
+  const handleViewDetails = (task) => {
+    setSelectedTask(task);
+    setDetailModalOpen(true);
+  };
 
   useEffect(() => {
     if (!token) {
@@ -38,7 +53,8 @@ const Dashboard = () => {
           "Error al obtener tareas: " + err.response?.data?.msg || err.message,
           {
             position: "bottom-right",
-            className: "bg-rose-50 border-l-4 border-rose-500 text-rose-700",
+            className:
+              "bg-rose-50 border-l-4 border-rose-500 text-rose-700 dark:bg-rose-900/50 dark:border-rose-700 dark:text-rose-300",
           }
         );
       }
@@ -100,13 +116,14 @@ const Dashboard = () => {
         toast.success("¡Tarea marcada como completada!", {
           position: "bottom-right",
           className:
-            "bg-emerald-50 border-l-4 border-emerald-500 text-emerald-700",
+            "bg-emerald-50 border-l-4 border-emerald-500 text-emerald-700 dark:bg-emerald-900/50 dark:border-emerald-700 dark:text-emerald-300",
           icon: "🎉",
         });
       } else {
         toast.info("Tarea marcada como pendiente", {
           position: "bottom-right",
-          className: "bg-blue-50 border-l-4 border-blue-500 text-blue-700",
+          className:
+            "bg-blue-50 border-l-4 border-blue-500 text-blue-700 dark:bg-blue-900/50 dark:border-blue-700 dark:text-blue-300",
         });
       }
     } catch (err) {
@@ -115,7 +132,8 @@ const Dashboard = () => {
           err.response?.data?.msg || err.message,
         {
           position: "bottom-right",
-          className: "bg-rose-50 border-l-4 border-rose-500 text-rose-700",
+          className:
+            "bg-rose-50 border-l-4 border-rose-500 text-rose-700 dark:bg-rose-900/50 dark:border-rose-700 dark:text-rose-300",
         }
       );
     } finally {
@@ -133,7 +151,7 @@ const Dashboard = () => {
       toast.success("¡Tarea eliminada con éxito!", {
         position: "bottom-right",
         className:
-          "bg-emerald-50 border-l-4 border-emerald-500 text-emerald-700",
+          "bg-emerald-50 border-l-4 border-emerald-500 text-emerald-700 dark:bg-emerald-900/50 dark:border-emerald-700 dark:text-emerald-300",
         icon: "🗑️",
       });
 
@@ -143,7 +161,8 @@ const Dashboard = () => {
         `Error al eliminar tarea: ${err.response?.data?.msg || err.message}`,
         {
           position: "bottom-right",
-          className: "bg-rose-50 border-l-4 border-rose-500 text-rose-700",
+          className:
+            "bg-rose-50 border-l-4 border-rose-500 text-rose-700 dark:bg-rose-900/50 dark:border-rose-700 dark:text-rose-300",
         }
       );
     } finally {
@@ -179,44 +198,58 @@ const Dashboard = () => {
     "esta tarea";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-10 px-6 flex flex-col items-center transition-all duration-300">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 pt-20 px-6 pb-10 flex flex-col items-center transition-all duration-300">
       <div className="w-full max-w-5xl">
-        <div className="text-center mb-12 animate-fade-in">
-          <h1 className="text-5xl font-bold text-slate-800 mb-3 tracking-tight">
-            <span className="inline-block mr-2 transform hover:scale-110 transition-transform duration-200">
-              📋
-            </span>
+        <div className="text-center mb-10 animate-fade-in">
+          <div className="inline-flex items-center justify-center p-3 bg-gradient-to-r from-rose-500 to-pink-500 rounded-xl shadow-lg mb-4">
+            <CheckSquare className="w-8 h-8 text-white" />
+          </div>
+          <h1 className="text-4xl font-bold text-slate-800 dark:text-white mb-3 tracking-tight">
             ToDo App
           </h1>
-          <p className="text-slate-500 text-lg max-w-xl mx-auto">
+          <p className="text-slate-500 dark:text-slate-400 text-lg max-w-xl mx-auto">
             Tu espacio privado para manejar tareas con estilo ✨
           </p>
         </div>
 
         <div className="w-full flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-          <div className="flex items-center gap-4">
-            <div className="bg-white/80 backdrop-blur-sm px-5 py-3 rounded-full shadow-sm border border-slate-100">
-              <p className="text-slate-600 font-medium flex items-center gap-2">
-                <span className="text-rose-500 font-bold">
-                  {pendingTasksCount}
-                </span>{" "}
-                pendientes
-                <span className="mx-1 text-slate-300">|</span>
-                <span className="text-emerald-500 font-bold">
-                  {completedTasksCount}
-                </span>{" "}
-                completadas
-              </p>
+          <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+            <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm px-5 py-3 rounded-full shadow-sm border border-slate-100 dark:border-slate-700 w-full sm:w-auto">
+              <div className="flex flex-wrap justify-center sm:justify-start items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <div className="p-1 bg-rose-100 dark:bg-rose-900/30 rounded-full">
+                    <Clock className="w-4 h-4 text-rose-500 dark:text-rose-400" />
+                  </div>
+                  <span className="text-slate-600 dark:text-slate-300 font-medium">
+                    <span className="text-rose-500 dark:text-rose-400 font-bold">
+                      {pendingTasksCount}
+                    </span>{" "}
+                    pendientes
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <div className="p-1 bg-emerald-100 dark:bg-emerald-900/30 rounded-full">
+                    <CheckCircle className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
+                  </div>
+                  <span className="text-slate-600 dark:text-slate-300 font-medium">
+                    <span className="text-emerald-500 dark:text-emerald-400 font-bold">
+                      {completedTasksCount}
+                    </span>{" "}
+                    completadas
+                  </span>
+                </div>
+              </div>
             </div>
 
             <button
               onClick={() => setShowCompletedTasks(!showCompletedTasks)}
               className={`
-                flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-300
+                flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-300 w-full sm:w-auto justify-center
                 ${
                   showCompletedTasks
-                    ? "bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100"
-                    : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                    ? "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/30"
+                    : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700"
                 }
               `}
             >
@@ -236,14 +269,14 @@ const Dashboard = () => {
 
           <button
             onClick={() => setShowModalCreate(true)}
-            className="group bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-medium px-6 py-3 rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2"
+            className="group bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-medium px-6 py-3 rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2 w-full md:w-auto justify-center"
           >
             <PlusCircle className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
             <span>Nueva tarea</span>
           </button>
         </div>
 
-        <div className="w-full bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 p-6 transition-all duration-300 hover:shadow-2xl">
+        <div className="w-full bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 p-6 transition-all duration-300 hover:shadow-2xl">
           <TaskList
             tasks={sortedAndFilteredTasks}
             setTasks={setTasks}
@@ -257,6 +290,7 @@ const Dashboard = () => {
               setTaskToEdit(task);
               setShowModal(true);
             }}
+            onViewDetails={handleViewDetails}
           />
         </div>
       </div>
@@ -281,6 +315,21 @@ const Dashboard = () => {
         onClose={() => setShowConfirmModal(false)}
         onConfirm={handleConfirmDelete}
         message="Esta acción no se puede deshacer. ¿Querés eliminar esta tarea?"
+      />
+
+      <TaskDetailModal
+        isOpen={detailModalOpen}
+        onClose={() => setDetailModalOpen(false)}
+        task={selectedTask}
+        onToggleComplete={handleToggleComplete}
+        onDelete={(id) => {
+          setTaskIdToDelete(id);
+          setShowConfirmModal(true);
+        }}
+        onEdit={(task) => {
+          setTaskToEdit(task);
+          setShowModal(true);
+        }}
       />
 
       <ConfirmModal

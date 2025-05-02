@@ -8,6 +8,7 @@ const TaskCard = ({
   onDelete,
   onEdit,
   dragHandleProps,
+  onViewDetails,
 }) => {
   const { _id, name, description, dueDate, isCompleted, showConfetti } = task;
   const [isCompleting, setIsCompleting] = useState(false);
@@ -37,14 +38,25 @@ const TaskCard = ({
   const isOverdue = diffDays < 0 && !isCompleted;
 
   // Manejar la animación de completado
-  const handleToggleComplete = () => {
+  const handleToggleComplete = (e) => {
+    e.stopPropagation();
     onToggleComplete(_id, !isCompleted);
+  };
+
+  const handleEdit = (e) => {
+    e.stopPropagation();
+    onEdit(task);
+  };
+
+  const handleDelete = (e) => {
+    e.stopPropagation();
+    onDelete(_id);
   };
 
   return (
     <div
       className={`
-        group bg-white rounded-xl shadow-lg p-5 transition-all duration-500 relative
+        group bg-white dark:bg-slate-800 rounded-xl shadow-lg p-5 transition-all duration-500 relative cursor-pointer
         ${
           isCompleted
             ? "border-l-4 border-emerald-500 opacity-80"
@@ -56,24 +68,25 @@ const TaskCard = ({
         }
         ${
           isCompleting
-            ? "scale-105 shadow-xl bg-emerald-50"
+            ? "scale-105 shadow-xl bg-emerald-50 dark:bg-emerald-900/20"
             : "hover:shadow-xl hover:-translate-y-1"
         }
         transform transition-all
       `}
+      onClick={() => onViewDetails(task)}
     >
       {showConfetti && <Confetti />}
 
       <div className="flex justify-between items-start mb-3">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 max-w-[85%]">
           <button
             onClick={handleToggleComplete}
             className={`
-              transition-all duration-300 rounded-full p-1
+              transition-all duration-300 rounded-full p-1 flex-shrink-0
               ${
                 isCompleted
-                  ? "text-emerald-500 hover:text-amber-500 hover:bg-amber-50 transform hover:scale-110"
-                  : "text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 transform hover:scale-110"
+                  ? "text-emerald-500 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/30 transform hover:scale-110"
+                  : "text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transform hover:scale-110"
               }
             `}
             title={
@@ -88,8 +101,12 @@ const TaskCard = ({
           </button>
           <h2
             className={`
-              text-lg font-semibold transition-all duration-500
-              ${isCompleted ? "text-slate-400 line-through" : "text-slate-800"}
+              text-lg font-semibold transition-all duration-500 truncate
+              ${
+                isCompleted
+                  ? "text-slate-400 line-through"
+                  : "text-slate-800 dark:text-white"
+              }
             `}
           >
             {name}
@@ -97,18 +114,23 @@ const TaskCard = ({
         </div>
         <span
           {...dragHandleProps}
-          className="cursor-grab text-slate-300 hover:text-slate-500 active:cursor-grabbing touch-none select-none transition-colors duration-200"
+          className="cursor-grab text-slate-300 dark:text-slate-600 hover:text-slate-500 dark:hover:text-slate-400 active:cursor-grabbing touch-none select-none transition-colors duration-200 flex-shrink-0"
           title="Arrastrar"
+          onClick={(e) => e.stopPropagation()}
         >
           ≡
         </span>
       </div>
 
-      <div className="pl-8 mb-4">
+      <div className="pl-8 mb-4 overflow-hidden">
         <p
           className={`
-            text-sm transition-all duration-500
-            ${isCompleted ? "text-slate-400" : "text-slate-600"}
+            text-sm transition-all duration-500 line-clamp-2
+            ${
+              isCompleted
+                ? "text-slate-400"
+                : "text-slate-600 dark:text-slate-300"
+            }
           `}
         >
           {description}
@@ -122,12 +144,12 @@ const TaskCard = ({
                 ? "text-rose-500"
                 : isNearDue
                 ? "text-amber-500"
-                : "text-slate-400"
+                : "text-slate-400 dark:text-slate-500"
             }
           `}
         >
-          <Calendar className="w-3 h-3" />
-          <span>
+          <Calendar className="w-3 h-3 flex-shrink-0" />
+          <span className="truncate">
             {isOverdue
               ? `Vencida (${Math.abs(diffDays)} ${
                   Math.abs(diffDays) === 1 ? "día" : "días"
@@ -141,15 +163,15 @@ const TaskCard = ({
 
       <div className="flex justify-end gap-2">
         <button
-          onClick={() => onEdit(task)}
-          className="p-2 text-slate-400 hover:text-amber-500 hover:bg-amber-50 rounded-full transition-all duration-200"
+          onClick={handleEdit}
+          className="p-2 text-slate-400 dark:text-slate-500 hover:text-amber-500 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded-full transition-all duration-200"
           title="Editar tarea"
         >
           <Edit className="w-4 h-4" />
         </button>
         <button
-          onClick={() => onDelete(_id)}
-          className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-full transition-all duration-200"
+          onClick={handleDelete}
+          className="p-2 text-slate-400 dark:text-slate-500 hover:text-rose-500 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded-full transition-all duration-200"
           title="Eliminar tarea"
         >
           <Trash2 className="w-4 h-4" />
@@ -157,7 +179,7 @@ const TaskCard = ({
       </div>
 
       {isCompleted && (
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-emerald-500/10 rounded-xl pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-emerald-500/10 dark:from-emerald-500/10 dark:to-emerald-500/20 rounded-xl pointer-events-none" />
       )}
     </div>
   );

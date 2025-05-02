@@ -19,7 +19,13 @@ import { toast } from "react-toastify";
 import Confetti from "./Confetti";
 import { useState, useEffect } from "react";
 
-const SortableTaskItem = ({ task, onToggleComplete, onDelete, onEdit }) => {
+const SortableTaskItem = ({
+  task,
+  onToggleComplete,
+  onDelete,
+  onEdit,
+  onViewDetails,
+}) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: task._id });
   const [isCompleting, setIsCompleting] = useState(false);
@@ -52,12 +58,27 @@ const SortableTaskItem = ({ task, onToggleComplete, onDelete, onEdit }) => {
     transition,
   };
 
+  const handleToggleComplete = (e) => {
+    e.stopPropagation();
+    onToggleComplete(_id, !isCompleted);
+  };
+
+  const handleEdit = (e) => {
+    e.stopPropagation();
+    onEdit(task);
+  };
+
+  const handleDelete = (e) => {
+    e.stopPropagation();
+    onDelete(_id);
+  };
+
   return (
     <div
       ref={setNodeRef}
       style={style}
       className={`
-        relative mb-2 bg-white rounded-xl shadow-lg transition-all duration-500
+        relative mb-2 bg-white dark:bg-slate-800 rounded-xl shadow-lg transition-all duration-500 cursor-pointer
         ${
           isCompleted
             ? "border-l-4 border-emerald-500 opacity-80"
@@ -68,22 +89,25 @@ const SortableTaskItem = ({ task, onToggleComplete, onDelete, onEdit }) => {
             : "border-l-4 border-transparent"
         }
         ${
-          isCompleting ? "scale-105 shadow-xl bg-emerald-50" : "hover:shadow-xl"
+          isCompleting
+            ? "scale-105 shadow-xl bg-emerald-50 dark:bg-emerald-900/20"
+            : "hover:shadow-xl"
         }
         transform transition-all
       `}
+      onClick={() => onViewDetails(task)}
     >
       {showConfetti && <Confetti />}
 
-      <div className="flex items-center p-4">
+      <div className="flex items-center p-4 flex-wrap">
         <button
-          onClick={() => onToggleComplete(_id, !isCompleted)}
+          onClick={handleToggleComplete}
           className={`
             transition-all duration-300 rounded-full p-1 mr-3
             ${
               isCompleted
-                ? "text-emerald-500 hover:text-amber-500 hover:bg-amber-50 transform hover:scale-110"
-                : "text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 transform hover:scale-110"
+                ? "text-emerald-500 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/30 transform hover:scale-110"
+                : "text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transform hover:scale-110"
             }
           `}
           title={
@@ -97,11 +121,15 @@ const SortableTaskItem = ({ task, onToggleComplete, onDelete, onEdit }) => {
           )}
         </button>
 
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 mr-2">
           <h2
             className={`
               text-lg font-semibold transition-all duration-500 truncate
-              ${isCompleted ? "text-slate-400 line-through" : "text-slate-800"}
+              ${
+                isCompleted
+                  ? "text-slate-400 line-through"
+                  : "text-slate-800 dark:text-white"
+              }
             `}
           >
             {name}
@@ -109,7 +137,11 @@ const SortableTaskItem = ({ task, onToggleComplete, onDelete, onEdit }) => {
           <p
             className={`
               text-sm transition-all duration-500 truncate
-              ${isCompleted ? "text-slate-400" : "text-slate-600"}
+              ${
+                isCompleted
+                  ? "text-slate-400"
+                  : "text-slate-600 dark:text-slate-300"
+              }
             `}
           >
             {description}
@@ -118,17 +150,17 @@ const SortableTaskItem = ({ task, onToggleComplete, onDelete, onEdit }) => {
 
         <div
           className={`
-            flex items-center gap-1 mx-4 text-xs whitespace-nowrap
+            flex items-center gap-1 text-xs whitespace-nowrap w-full mt-2 sm:mt-0 sm:w-auto sm:mx-4 flex-shrink-0
             ${
               isOverdue
                 ? "text-rose-500"
                 : isNearDue
                 ? "text-amber-500"
-                : "text-slate-400"
+                : "text-slate-400 dark:text-slate-500"
             }
           `}
         >
-          <Calendar className="w-3 h-3" />
+          <Calendar className="w-3 h-3 flex-shrink-0" />
           <span>
             {isOverdue
               ? `Vencida (${Math.abs(diffDays)} ${
@@ -140,17 +172,20 @@ const SortableTaskItem = ({ task, onToggleComplete, onDelete, onEdit }) => {
           </span>
         </div>
 
-        <div className="flex items-center">
+        <div
+          className="flex items-center flex-shrink-0"
+          onClick={(e) => e.stopPropagation()}
+        >
           <button
-            onClick={() => onEdit(task)}
-            className="p-2 text-slate-400 hover:text-amber-500 hover:bg-amber-50 rounded-full transition-all duration-200"
+            onClick={handleEdit}
+            className="p-2 text-slate-400 dark:text-slate-500 hover:text-amber-500 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded-full transition-all duration-200"
             title="Editar tarea"
           >
             <Edit className="w-4 h-4" />
           </button>
           <button
-            onClick={() => onDelete(_id)}
-            className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-full transition-all duration-200"
+            onClick={handleDelete}
+            className="p-2 text-slate-400 dark:text-slate-500 hover:text-rose-500 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded-full transition-all duration-200"
             title="Eliminar tarea"
           >
             <Trash2 className="w-4 h-4" />
@@ -158,7 +193,7 @@ const SortableTaskItem = ({ task, onToggleComplete, onDelete, onEdit }) => {
           <span
             {...attributes}
             {...listeners}
-            className="cursor-grab text-slate-300 hover:text-slate-500 active:cursor-grabbing touch-none select-none transition-colors duration-200 p-2"
+            className="cursor-grab text-slate-300 dark:text-slate-600 hover:text-slate-500 dark:hover:text-slate-400 active:cursor-grabbing touch-none select-none transition-colors duration-200 p-2"
             title="Arrastrar"
           >
             ≡
@@ -167,7 +202,7 @@ const SortableTaskItem = ({ task, onToggleComplete, onDelete, onEdit }) => {
       </div>
 
       {isCompleted && (
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-emerald-500/10 rounded-xl pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-emerald-500/10 dark:from-emerald-500/10 dark:to-emerald-500/20 rounded-xl pointer-events-none" />
       )}
     </div>
   );
@@ -180,6 +215,7 @@ const ListView = ({
   onToggleComplete,
   onDelete,
   onEdit,
+  onViewDetails,
 }) => {
   const sensors = useSensors(
     useSensor(MouseSensor),
@@ -210,7 +246,8 @@ const ListView = ({
       );
       toast.success("Orden actualizado", {
         position: "bottom-right",
-        className: "bg-blue-50 border-l-4 border-blue-500 text-blue-700",
+        className:
+          "bg-blue-50 border-l-4 border-blue-500 text-blue-700 dark:bg-blue-900/50 dark:border-blue-700 dark:text-blue-300",
       });
     } catch (err) {
       toast.error(
@@ -218,7 +255,8 @@ const ListView = ({
           (err.response?.data?.message || err.message),
         {
           position: "bottom-right",
-          className: "bg-rose-50 border-l-4 border-rose-500 text-rose-700",
+          className:
+            "bg-rose-50 border-l-4 border-rose-500 text-rose-700 dark:bg-rose-900/50 dark:border-rose-700 dark:text-rose-300",
         }
       );
     }
@@ -226,7 +264,7 @@ const ListView = ({
 
   if (tasks.length === 0) {
     return (
-      <p className="text-xl text-gray-500 mt-10 text-center">
+      <p className="text-xl text-gray-500 dark:text-gray-400 mt-10 text-center">
         No hay tareas para mostrar 💤
       </p>
     );
@@ -250,6 +288,7 @@ const ListView = ({
               onToggleComplete={onToggleComplete}
               onDelete={onDelete}
               onEdit={onEdit}
+              onViewDetails={onViewDetails}
             />
           ))}
         </div>

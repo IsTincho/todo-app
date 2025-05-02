@@ -12,11 +12,37 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({});
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Validar email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email.trim()) {
+      newErrors.email = "El email es requerido";
+    } else if (!emailRegex.test(email)) {
+      newErrors.email = "Ingresa un email válido";
+    }
+
+    // Validar contraseña
+    if (!password) {
+      newErrors.password = "La contraseña es requerida";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -29,7 +55,7 @@ const Login = () => {
         toast.success("¡Sesión iniciada correctamente!", {
           position: "bottom-right",
           className:
-            "bg-emerald-50 border-l-4 border-emerald-500 text-emerald-700",
+            "bg-emerald-50 border-l-4 border-emerald-500 text-emerald-700 dark:bg-emerald-900/50 dark:border-emerald-700 dark:text-emerald-300",
           icon: "🎉",
         });
         navigate("/");
@@ -38,31 +64,32 @@ const Login = () => {
       setIsLoading(false);
       toast.error("Error: " + (err.response?.data?.message || err.message), {
         position: "bottom-right",
-        className: "bg-rose-50 border-l-4 border-rose-500 text-rose-700",
+        className:
+          "bg-rose-50 border-l-4 border-rose-500 text-rose-700 dark:bg-rose-900/50 dark:border-rose-700 dark:text-rose-300",
       });
     }
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-rose-50 to-slate-100 px-4 sm:px-6 md:px-8">
+    <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-rose-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 px-4 sm:px-6 md:px-8">
       <div className="w-full max-w-md">
         <div className="text-center mb-8 animate-fade-in">
-          <h1 className="text-4xl font-bold text-slate-800 mb-2">
+          <h1 className="text-4xl font-bold text-slate-800 dark:text-white mb-2">
             <span className="inline-block mr-2 transform hover:scale-110 transition-transform duration-200">
               📋
             </span>
             ToDo App
           </h1>
-          <p className="text-slate-500">
+          <p className="text-slate-500 dark:text-slate-400">
             Inicia sesión para gestionar tus tareas
           </p>
         </div>
 
         <form
           onSubmit={handleLogin}
-          className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-xl border border-slate-100 space-y-6 transition-all duration-300 hover:shadow-2xl"
+          className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm p-8 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 space-y-6 transition-all duration-300 hover:shadow-2xl"
         >
-          <h2 className="text-2xl font-bold text-center text-slate-800 mb-6">
+          <h2 className="text-2xl font-bold text-center text-slate-800 dark:text-white mb-6">
             Iniciar Sesión
           </h2>
 
@@ -70,42 +97,53 @@ const Login = () => {
           <div className="space-y-2">
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-slate-700"
+              className="block text-sm font-medium text-slate-700 dark:text-slate-300"
             >
               Email
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Mail className="h-5 w-5 text-slate-400" />
+                <Mail className="h-5 w-5 text-slate-400 dark:text-slate-500" />
               </div>
               <input
                 type="email"
                 id="email"
-                className="pl-10 w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-200"
+                className={`pl-10 w-full p-3 bg-slate-50 dark:bg-slate-700 border ${
+                  errors.email
+                    ? "border-rose-500 dark:border-rose-500"
+                    : "border-slate-200 dark:border-slate-600"
+                } rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-200 dark:text-white`}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="tu@email.com"
               />
             </div>
+            {errors.email && (
+              <p className="text-rose-500 text-xs mt-1">{errors.email}</p>
+            )}
           </div>
 
           {/* Password Input */}
           <div className="space-y-2">
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-slate-700"
+              className="block text-sm font-medium text-slate-700 dark:text-slate-300"
             >
               Contraseña
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-slate-400" />
+                <Lock className="h-5 w-5 text-slate-400 dark:text-slate-500" />
               </div>
               <input
                 type={showPassword ? "text" : "password"}
                 id="password"
-                className="pl-10 w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-200"
+                className={`pl-10 w-full p-3 bg-slate-50 dark:bg-slate-700 border ${
+                  errors.password
+                    ? "border-rose-500 dark:border-rose-500"
+                    : "border-slate-200 dark:border-slate-600"
+                } rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-200 dark:text-white`}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -114,7 +152,7 @@ const Login = () => {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors duration-200"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors duration-200"
               >
                 {showPassword ? (
                   <EyeOff className="h-5 w-5" />
@@ -123,6 +161,9 @@ const Login = () => {
                 )}
               </button>
             </div>
+            {errors.password && (
+              <p className="text-rose-500 text-xs mt-1">{errors.password}</p>
+            )}
           </div>
 
           {/* Submit Button */}
@@ -164,11 +205,11 @@ const Login = () => {
           </button>
 
           {/* Enlace para cambiar al registro */}
-          <p className="text-center mt-6 text-sm text-slate-600">
+          <p className="text-center mt-6 text-sm text-slate-600 dark:text-slate-400">
             ¿No tienes cuenta?{" "}
             <Link
               to="/register"
-              className="text-rose-500 hover:text-rose-700 font-medium transition-colors duration-200"
+              className="text-rose-500 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 font-medium transition-colors duration-200"
             >
               Regístrate aquí
             </Link>

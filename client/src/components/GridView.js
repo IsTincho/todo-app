@@ -17,7 +17,13 @@ import TaskCard from "./TaskCard";
 import axios from "../api/axios";
 import { toast } from "react-toastify";
 
-const SortableTaskCard = ({ task, onToggleComplete, onDelete, onEdit }) => {
+const SortableTaskCard = ({
+  task,
+  onToggleComplete,
+  onDelete,
+  onEdit,
+  onViewDetails,
+}) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: task._id });
 
@@ -33,6 +39,7 @@ const SortableTaskCard = ({ task, onToggleComplete, onDelete, onEdit }) => {
         onToggleComplete={onToggleComplete}
         onDelete={onDelete}
         onEdit={onEdit}
+        onViewDetails={onViewDetails}
         dragHandleProps={{ ...attributes, ...listeners }}
       />
     </div>
@@ -46,6 +53,7 @@ const GridView = ({
   onToggleComplete,
   onDelete,
   onEdit,
+  onViewDetails,
 }) => {
   const sensors = useSensors(
     useSensor(MouseSensor),
@@ -76,7 +84,8 @@ const GridView = ({
       );
       toast.success("Orden actualizado", {
         position: "bottom-right",
-        className: "bg-blue-50 border-l-4 border-blue-500 text-blue-700",
+        className:
+          "bg-blue-50 border-l-4 border-blue-500 text-blue-700 dark:bg-blue-900/50 dark:border-blue-700 dark:text-blue-300",
       });
     } catch (err) {
       toast.error(
@@ -84,7 +93,8 @@ const GridView = ({
           (err.response?.data?.message || err.message),
         {
           position: "bottom-right",
-          className: "bg-rose-50 border-l-4 border-rose-500 text-rose-700",
+          className:
+            "bg-rose-50 border-l-4 border-rose-500 text-rose-700 dark:bg-rose-900/50 dark:border-rose-700 dark:text-rose-300",
         }
       );
     }
@@ -92,7 +102,7 @@ const GridView = ({
 
   if (tasks.length === 0) {
     return (
-      <p className="text-xl text-gray-500 mt-10 text-center">
+      <p className="text-xl text-gray-500 dark:text-gray-400 mt-10 text-center">
         No hay tareas para mostrar 💤
       </p>
     );
@@ -116,6 +126,7 @@ const GridView = ({
               onToggleComplete={onToggleComplete}
               onDelete={onDelete}
               onEdit={onEdit}
+              onViewDetails={onViewDetails}
             />
           ))}
         </div>

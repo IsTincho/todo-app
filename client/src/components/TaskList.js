@@ -10,19 +10,20 @@ const TaskList = ({
   onToggleComplete,
   onDelete,
   onEdit,
+  onViewDetails,
 }) => {
   const [viewMode, setViewMode] = useState("grid"); // "grid" o "list" el estado
 
   return (
     <div className="w-full">
       <div className="flex justify-end mb-4">
-        <div className="bg-white rounded-lg shadow-sm border border-slate-100 p-1 inline-flex">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-100 dark:border-slate-700 p-1 inline-flex">
           <button
             onClick={() => setViewMode("grid")}
             className={`p-2 rounded-md transition-all ${
               viewMode === "grid"
-                ? "bg-rose-50 text-rose-500"
-                : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+                ? "bg-rose-50 dark:bg-rose-900/30 text-rose-500 dark:text-rose-400"
+                : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
             }`}
             title="Vista de cuadrícula"
           >
@@ -32,8 +33,8 @@ const TaskList = ({
             onClick={() => setViewMode("list")}
             className={`p-2 rounded-md transition-all ${
               viewMode === "list"
-                ? "bg-rose-50 text-rose-500"
-                : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+                ? "bg-rose-50 dark:bg-rose-900/30 text-rose-500 dark:text-rose-400"
+                : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
             }`}
             title="Vista de lista"
           >
@@ -50,6 +51,7 @@ const TaskList = ({
           onToggleComplete={onToggleComplete}
           onDelete={onDelete}
           onEdit={onEdit}
+          onViewDetails={onViewDetails}
         />
       ) : (
         <ListView
@@ -59,6 +61,7 @@ const TaskList = ({
           onToggleComplete={onToggleComplete}
           onDelete={onDelete}
           onEdit={onEdit}
+          onViewDetails={onViewDetails}
         />
       )}
     </div>

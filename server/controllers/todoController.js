@@ -5,7 +5,7 @@ const getAllTodos = async (req, res) => {
     const todos = await Todo.find({
       user: req.user._id,
       isDeleted: false,
-    }); //.sort({ order: 1 });
+    }).sort({ order: 1 });
 
     res.status(200).json(todos);
   } catch (err) {
@@ -17,8 +17,32 @@ const getAllTodos = async (req, res) => {
 const createTodo = async (req, res) => {
   const { name, description, dueDate } = req.body;
 
+  // Validaciones mejoradas
   if (!name || !description || !dueDate) {
     return res.status(400).json({ message: "Todos los campos son requeridos" });
+  }
+
+  // Validar longitud del nombre
+  if (name.trim().length < 3 || name.trim().length > 100) {
+    return res
+      .status(400)
+      .json({ message: "El nombre debe tener entre 3 y 100 caracteres" });
+  }
+
+  // Validar longitud de la descripción
+  if (description.trim().length < 5 || description.trim().length > 500) {
+    return res
+      .status(400)
+      .json({ message: "La descripción debe tener entre 5 y 500 caracteres" });
+  }
+
+  // Validar fecha
+  const selectedDate = new Date(dueDate);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (isNaN(selectedDate.getTime())) {
+    return res.status(400).json({ message: "Formato de fecha inválido" });
   }
 
   if (!req.user || !req.user._id) {
@@ -34,8 +58,8 @@ const createTodo = async (req, res) => {
 
     const newTodo = new Todo({
       user: req.user._id,
-      name,
-      description,
+      name: name.trim(),
+      description: description.trim(),
       isDeleted: false,
       dueDate,
       order: newOrder,
@@ -53,6 +77,18 @@ const createTodo = async (req, res) => {
 const markTodoAsCompleted = async (req, res) => {
   const { id } = req.params;
   const { isCompleted } = req.body; // Ahora recibimos el estado deseado
+
+  // Validar que el ID sea válido
+  if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+    return res.status(400).json({ message: "ID de tarea inválido" });
+  }
+
+  // Validar que isCompleted sea un booleano
+  if (typeof isCompleted !== "boolean") {
+    return res
+      .status(400)
+      .json({ message: "El estado de completado debe ser un valor booleano" });
+  }
 
   try {
     const todo = await Todo.findById(id);
@@ -89,8 +125,34 @@ const editTodo = async (req, res) => {
   const { id } = req.params;
   const { name, description, dueDate } = req.body;
 
+  // Validar que el ID sea válido
+  if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+    return res.status(400).json({ message: "ID de tarea inválido" });
+  }
+
+  // Validaciones mejoradas
   if (!name || !description || !dueDate) {
     return res.status(400).json({ message: "Todos los campos son requeridos" });
+  }
+
+  // Validar longitud del nombre
+  if (name.trim().length < 3 || name.trim().length > 100) {
+    return res
+      .status(400)
+      .json({ message: "El nombre debe tener entre 3 y 100 caracteres" });
+  }
+
+  // Validar longitud de la descripción
+  if (description.trim().length < 5 || description.trim().length > 500) {
+    return res
+      .status(400)
+      .json({ message: "La descripción debe tener entre 5 y 500 caracteres" });
+  }
+
+  // Validar fecha
+  const selectedDate = new Date(dueDate);
+  if (isNaN(selectedDate.getTime())) {
+    return res.status(400).json({ message: "Formato de fecha inválido" });
   }
 
   try {
@@ -106,8 +168,8 @@ const editTodo = async (req, res) => {
         .json({ message: "No tienes permiso para modificar esta tarea" });
     }
 
-    todo.name = name;
-    todo.description = description;
+    todo.name = name.trim();
+    todo.description = description.trim();
     todo.dueDate = dueDate;
 
     await todo.save();
@@ -121,6 +183,11 @@ const editTodo = async (req, res) => {
 
 const deleteTodo = async (req, res) => {
   const { id } = req.params;
+
+  // Validar que el ID sea válido
+  if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+    return res.status(400).json({ message: "ID de tarea inválido" });
+  }
 
   try {
     const todo = await Todo.findById(id);
@@ -152,6 +219,13 @@ const reorderTodos = async (req, res) => {
     return res
       .status(400)
       .json({ message: "El orden de las tareas es necesario" });
+  }
+
+  // Validar que todos los IDs sean válidos
+  for (const id of tasksOrder) {
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ message: `ID de tarea inválido: ${id}` });
+    }
   }
 
   try {
