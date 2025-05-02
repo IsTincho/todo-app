@@ -10,7 +10,6 @@ export const useTheme = () => useContext(ThemeContext);
 export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState("light");
 
-  // Inicializar el tema desde localStorage o preferencia del sistema
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
 

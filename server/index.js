@@ -2,7 +2,6 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const authRoutes = require("./routes/authRoutes");
-//const adminRoutes = require("./routes/adminRoutes");
 const todoRoutes = require("./routes/todoRoutes");
 const verifyApiCredentials = require("./middlewares/verifyApiCredentials");
 const apiLimiter = require("./middlewares/rateLimiter");
@@ -18,7 +17,6 @@ app.use(verifyApiCredentials);
 
 // Rutas
 app.use("/api/auth", authRoutes);
-//app.use("/api/admin", adminRoutes); // Era de test nomas pronto sera eliminada
 app.use("/api/todos", todoRoutes);
 
 // Conectar DB y lanzar servidor
